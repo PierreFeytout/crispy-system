@@ -1,9 +1,11 @@
 ﻿using System.Diagnostics;
+using TermGui;
 using Terminal.Gui;
 using Attribute = Terminal.Gui.Attribute;
 
 internal class GameView : View
 {
+    private long lastSwitch;
     public long Score { get; private set; }
     public int GameWidth { get; }
     public int GameHeight { get; }
@@ -13,6 +15,11 @@ internal class GameView : View
     public List<(int x, int y)> Shots { get; } = new();
     public bool Won { get; set; }
     public bool Lost { get; set; }
+    public bool PauseDrawing { get; set; } = false;
+    private readonly Attribute shotColor = new Attribute(Color.BrightRed, Color.Black);
+    private readonly Attribute enemyColor = new Attribute(Color.BrightGreen, Color.Black);
+
+    public bool enemyanim = true;
 
     private int enemyDir = 1;
 
@@ -33,8 +40,9 @@ internal class GameView : View
     private readonly Label ScoreLabel;
 
     private long LastShot = Stopwatch.GetTimestamp();
-
     private readonly TimeSpan DefaultShotDelay = TimeSpan.FromMilliseconds(500);
+    private readonly TimeSpan EnemyAnimationDelay = TimeSpan.FromMilliseconds(800);
+    private readonly LeaderBoardApi _boardApi;
 
     private void SetScore()
     {
@@ -51,7 +59,7 @@ internal class GameView : View
         }
     }
 
-    public GameView(int width, int height)
+    public GameView(int width, int height, LeaderBoardApi boardApi)
     {
         ScoreLabel = new Label();
         ScoreLabel.Width = width;
@@ -60,6 +68,7 @@ internal class GameView : View
 
         GameWidth = width;
         GameHeight = height;
+        _boardApi = boardApi;
         X = 0;
         Y = 0;
         Width = width;
@@ -72,6 +81,7 @@ internal class GameView : View
 
     public void Init()
     {
+        PauseDrawing = false;
         Won = false;
         Lost = false;
         PlayerX = GameWidth / 2;
@@ -104,7 +114,10 @@ internal class GameView : View
             {
                 y += 1;
                 if (y >= PlayerY)
+                {
                     Lost = true;
+                    AskUserNameAndSaveScore();
+                }
             }
             else
             {
@@ -137,7 +150,10 @@ internal class GameView : View
 
         // Win condition
         if (Enemies.Count == 0)
+        {
             Won = true;
+            AskUserNameAndSaveScore();
+        }
     }
 
     public void RedrawGame() => SetNeedsDraw();
@@ -165,11 +181,14 @@ internal class GameView : View
         AddRune('A');
 
         // Draw enemies
+        SetAttribute(enemyColor);
         foreach (var (x, y) in Enemies)
         {
             Move(x, y);
-            AddRune('W');
+            AddRune(enemyanim ? 'W' : 'V');
         }
+
+        SetAttribute(shotColor);
         // Draw shots
         foreach (var (x, y) in Shots)
         {
@@ -177,11 +196,23 @@ internal class GameView : View
             AddRune('|');
         }
 
+        SetAttribute(ColorScheme.Normal);
+        if (ElapsedSince(lastSwitch) > EnemyAnimationDelay)
+        {
+            enemyanim = !enemyanim;
+            lastSwitch = Stopwatch.GetTimestamp();
+        }
         return false;
     }
 
-    private static void AskUserNameAndSaveScore(int score, bool won)
+    private TimeSpan ElapsedSince(long ticks)
     {
+        return Stopwatch.GetElapsedTime(ticks, Stopwatch.GetTimestamp());
+    }
+
+    public void AskUserNameAndSaveScore()
+    {
+        PauseDrawing = true;
         var dialog = new Dialog
         {
             Title = "Enter Name",
@@ -190,7 +221,7 @@ internal class GameView : View
         };
         var label = new Label
         {
-            Text = won ? "Victory! Enter your name:" : "Game Over! Enter your name:",
+            Text = Won ? "Victory! Enter your name:" : "Game Over! Enter your name:",
             X = 2,
             Y = 1,
             Width = 30
@@ -214,10 +245,9 @@ internal class GameView : View
         okButton.Accepting += (_, _) =>
         {
             var userName = nameField.Text?.ToString()?.Trim() ?? "Player";
-            // Save to your scoreboard here (mock implementation below)
-            scoreEntries.Insert(0, new ScoreEntry { UserName = userName, Score = score }); // Add on top
-            Application.RequestStop(); // Close dialog
-            ShowScores(); // Or ShowMenu(), as you wish
+            _boardApi.UpdateScore(userName, Score);
+            dialog.RequestStop();
+            PauseDrawing = false;
         };
 
         Application.Run(dialog);

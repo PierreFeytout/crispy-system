@@ -1,5 +1,7 @@
 ﻿using System.Text;
 using Azure.Data.Tables;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Scalar.AspNetCore;
 
@@ -21,7 +23,17 @@ namespace WebApplication1
 
 
             // Add services to the container.
-            builder.Services.AddAuthorization();
+            builder.Services.AddAuthentication("ApiKeyScheme").AddScheme<AuthenticationSchemeOptions, ApiKeyHandler>("ApiKeyScheme", null);
+
+            builder.Services.AddAuthorization(conf =>
+            {
+                conf.AddPolicy("ApiKey", policy =>
+                {
+                    policy.AddAuthenticationSchemes("ApiKeyScheme");
+                    policy.RequireAuthenticatedUser();
+                });
+            });
+
             builder.Services.AddScoped(sp =>
             {
                 return new TableServiceClient(
@@ -86,14 +98,14 @@ namespace WebApplication1
 
         private static void ConfigureRestEndpoints(WebApplication app)
         {
-            app.MapPost("/scores/", async (HttpContext httpContext, ScoreService scoreService, [FromBody] UserEntity payload) =>
+            app.MapPost("/scores/", [Authorize("ApiKey")] async (HttpContext httpContext, ScoreService scoreService, [FromBody] UserEntity payload) =>
             {
                 var user = await scoreService.UpsertScore(payload);
 
                 return user;
             });
 
-            app.MapGet("/scores", (HttpContext httpContext, ScoreService scoreService) =>
+            app.MapGet("/scores", [Authorize("ApiKey")] (HttpContext httpContext, ScoreService scoreService) =>
             {
                 return scoreService.GetScores();
             })
