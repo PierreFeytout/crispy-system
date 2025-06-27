@@ -1,4 +1,4 @@
-﻿namespace TermGui
+﻿namespace SpaceInvader
 {
     using System.Collections.Concurrent;
     using System.Diagnostics;

@@ -1,7 +1,8 @@
 ﻿using System.Diagnostics;
-using TermGui;
 using Terminal.Gui;
 using Attribute = Terminal.Gui.Attribute;
+
+namespace SpaceInvader;
 
 internal class GameView : View
 {
