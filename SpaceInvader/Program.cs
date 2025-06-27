@@ -46,7 +46,7 @@ internal class Program
                 var url = config.GetValue<string>("ApiUrl");
                 var key = config.GetValue<string>("ApiKey");
                 client.BaseAddress = new Uri(url!);
-                client.DefaultRequestHeaders.Add("x*-api-key", key);
+                client.DefaultRequestHeaders.Add("x-api-key", key);
             });
         });
 

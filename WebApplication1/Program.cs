@@ -22,6 +22,8 @@ namespace WebApplication1
             var accessKey = builder.Configuration.GetValue<string>("TableKey");
 
 
+            builder.Services.AddMemoryCache();
+
             // Add services to the container.
             builder.Services.AddAuthentication("ApiKeyScheme").AddScheme<AuthenticationSchemeOptions, ApiKeyHandler>("ApiKeyScheme", null);
 
