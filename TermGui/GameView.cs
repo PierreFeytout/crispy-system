@@ -116,7 +116,10 @@ internal class GameView : View
                 if (y >= PlayerY)
                 {
                     Lost = true;
-                    AskUserNameAndSaveScore();
+                    PauseDrawing = true;
+                    // Stoppe ton thread de logique AVANT si ce n’est pas déjà fait !
+                    Application.Invoke(AskUserNameAndSaveScore);
+                    return;
                 }
             }
             else
@@ -152,7 +155,9 @@ internal class GameView : View
         if (Enemies.Count == 0)
         {
             Won = true;
-            AskUserNameAndSaveScore();
+            PauseDrawing = true;
+            // Stoppe la logique ici
+            Application.Invoke(AskUserNameAndSaveScore);
         }
     }
 
@@ -241,14 +246,15 @@ internal class GameView : View
             IsDefault = true
         };
         dialog.Add(label, nameField, okButton);
-
         okButton.Accepting += (_, _) =>
         {
             var userName = nameField.Text?.ToString()?.Trim() ?? "Player";
             _boardApi.UpdateScore(userName, Score);
             dialog.RequestStop();
-            PauseDrawing = false;
+            // Ici, tu pourras ensuite naviguer vers le menu, nettoyer la vue, etc.
+            // Mais pas AVANT la fermeture du dialog !
         };
+
 
         Application.Run(dialog);
     }
