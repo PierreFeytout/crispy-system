@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceInvader", "SpaceInvade
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication1", "WebApplication1\WebApplication1.csproj", "{1139E486-A36B-6B58-4965-3753D45010A4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Obfuscator", "Obfuscator\Obfuscator.csproj", "{454F8366-DD44-4556-9221-F7A2EAF0EE18}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{1139E486-A36B-6B58-4965-3753D45010A4}.Release|x64.Build.0 = Release|Any CPU
 		{1139E486-A36B-6B58-4965-3753D45010A4}.Release|x86.ActiveCfg = Release|Any CPU
 		{1139E486-A36B-6B58-4965-3753D45010A4}.Release|x86.Build.0 = Release|Any CPU
+		{454F8366-DD44-4556-9221-F7A2EAF0EE18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{454F8366-DD44-4556-9221-F7A2EAF0EE18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{454F8366-DD44-4556-9221-F7A2EAF0EE18}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{454F8366-DD44-4556-9221-F7A2EAF0EE18}.Debug|x64.Build.0 = Debug|Any CPU
+		{454F8366-DD44-4556-9221-F7A2EAF0EE18}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{454F8366-DD44-4556-9221-F7A2EAF0EE18}.Debug|x86.Build.0 = Debug|Any CPU
+		{454F8366-DD44-4556-9221-F7A2EAF0EE18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{454F8366-DD44-4556-9221-F7A2EAF0EE18}.Release|Any CPU.Build.0 = Release|Any CPU
+		{454F8366-DD44-4556-9221-F7A2EAF0EE18}.Release|x64.ActiveCfg = Release|Any CPU
+		{454F8366-DD44-4556-9221-F7A2EAF0EE18}.Release|x64.Build.0 = Release|Any CPU
+		{454F8366-DD44-4556-9221-F7A2EAF0EE18}.Release|x86.ActiveCfg = Release|Any CPU
+		{454F8366-DD44-4556-9221-F7A2EAF0EE18}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

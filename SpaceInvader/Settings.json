@@ -1,4 +1,5 @@
 ﻿{
-  "ApiUrl": "https://space-invader-ctczche3b2ege6em.canadacentral-01.azurewebsites.net/",
-  "ApiKey": "rWts4DzhwA0rsKjAjv-RGKw8yTkfJ9Dy88kYAY8i1hw"
+  "ApiUrl": "https://space-invader-ctczche3b2ege6em.francecentral-01.azurewebsites.net/",
+  "ApiKey": "nL2mU9jx6_-r_2Zy0wQaC9Fz2uAxPyUKbRt3Wz0B7QrOgxNRzINXIsQEGTKaI3pa7GLQ4N34hBrQAnrfUJ_mfQ",
+  "RandomTimer" : "Timer500Cron"
 }

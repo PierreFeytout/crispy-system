@@ -22,7 +22,7 @@
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            if (!Request.Headers.TryGetValue("x-api-key", out var apiKey))
+            if (!Request.Headers.TryGetValue("dummy", out var apiKey))
             {
                 return Task.FromResult(AuthenticateResult.Fail("API Key was not provided."));
             }

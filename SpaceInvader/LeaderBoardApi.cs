@@ -11,15 +11,23 @@ public class LeaderBoardApi(HttpClient httpClient)
             UserName = userName,
             Score = score
         };
-        var result = httpClient.PostAsJsonAsync<ScoreEntry>("/scores", scoreEnty);
+        var result = httpClient.PostAsJsonAsync("/scores", scoreEnty, ScoreEntryJsonContext.Default.ScoreEntry);
         result.Wait();
     }
+
     public IEnumerable<ScoreEntry> GetScores()
     {
-        var result = httpClient.GetFromJsonAsync<IEnumerable<ScoreEntry>>("/scores");
+        try
+        {
+            var result = httpClient.GetFromJsonAsync("/scores", ScoreEntryJsonContext.Default.ListScoreEntry);
 
-        result.Wait();
+            result.Wait();
+            return result.Result!;
+        }
+        catch
+        {
+            return [];
+        }
 
-        return result.Result!;
     }
 }

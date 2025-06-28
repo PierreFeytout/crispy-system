@@ -1,10 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>3348ac18-57da-4a22-989c-135c9edb4358</UserSecretsId>
+	  <PublishAot>true</PublishAot>
+	  <IsAotCompatible>true</IsAotCompatible>
+	  <OptimizationPreference>Speed</OptimizationPreference>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,9 +22,12 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Data.Tables" Version="12.11.0" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.6" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.5.1" />
   </ItemGroup>
-
+	<ItemGroup>
+		<Protobuf Include="Protos/score.proto" GrpcServices="Server" />
+	</ItemGroup>
 </Project>

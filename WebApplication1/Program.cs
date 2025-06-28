@@ -1,8 +1,5 @@
 ﻿using System.Text;
-using Azure.Data.Tables;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Scalar.AspNetCore;
 
 
@@ -14,10 +11,16 @@ namespace WebApplication1
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.AddGrpc(); // <-- Required
             if (builder.Environment.IsDevelopment())
             {
                 builder.Configuration.AddUserSecrets<Program>();
             }
+
+            builder.Services.ConfigureHttpJsonOptions(options =>
+            {
+                options.SerializerOptions.TypeInfoResolverChain.Insert(0, ScoreEntryJsonContext.Default);
+            });
 
             var accessKey = builder.Configuration.GetValue<string>("TableKey");
 
@@ -36,12 +39,7 @@ namespace WebApplication1
                 });
             });
 
-            builder.Services.AddScoped(sp =>
-            {
-                return new TableServiceClient(
-                     new Uri("https://spaceinvader.table.core.windows.net/"),
-                     new TableSharedKeyCredential("spaceinvader", accessKey));
-            });
+            builder.Services.AddHttpClient<TableService>();
 
             builder.Services.AddScoped<ScoreService>();
 
@@ -50,20 +48,16 @@ namespace WebApplication1
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.MapOpenApi();
-                app.MapScalarApiReference();
-            }
+            app.MapOpenApi();
+            app.MapScalarApiReference();
 
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
 
-            ConfigureRestEndpoints(app);
             // Serve a lightweight HTML page
             ConfigureLightWeightHtmlPage(app);
+            ConfigureGrpcEndpoints(app);
             app.UseStaticFiles();
 
             app.Run();
@@ -97,22 +91,29 @@ namespace WebApplication1
                 await context.Response.WriteAsync(htmlContent);
             });
         }
-
-        private static void ConfigureRestEndpoints(WebApplication app)
+        private static void ConfigureGrpcEndpoints(WebApplication app)
         {
-            app.MapPost("/scores/", [Authorize("ApiKey")] async (HttpContext httpContext, ScoreService scoreService, [FromBody] UserEntity payload) =>
-            {
-                var user = await scoreService.UpsertScore(payload);
-
-                return user;
-            });
-
-            app.MapGet("/scores", [Authorize("ApiKey")] (HttpContext httpContext, ScoreService scoreService) =>
-            {
-                return scoreService.GetScores();
-            })
-                .WithOpenApi()
-                .WithName("GetScores");
+            app.MapGrpcService<LeaderBoardService>()
+                .RequireAuthorization("ApiKey");
+            //.WithOpenApi();
         }
+
+        //private static void ConfigureRestEndpoints(WebApplication app)
+        //{
+        //    app.MapPost("/scores/", [Authorize("ApiKey")] async (HttpContext httpContext, ScoreService scoreService, [FromBody] UserEntity payload) =>
+        //    {
+        //        var user = await scoreService.UpsertScore(payload);
+
+        //        return user;
+        //    });
+
+        //    app.MapGet("/scores", [Authorize("ApiKey")] async (HttpContext httpContext, ScoreService scoreService) =>
+        //    {
+        //        var scores = await scoreService.GetScores();
+        //        return scores.ToList();
+        //    })
+        //        .WithOpenApi()
+        //        .WithName("GetScores");
+        //}
     }
 }

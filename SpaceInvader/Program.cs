@@ -44,10 +44,15 @@ internal class Program
             {
                 var config = sp.GetRequiredService<IConfiguration>();
                 var url = config.GetValue<string>("ApiUrl");
-                var key = config.GetValue<string>("ApiKey");
+#if DEBUG
+                var dum = "nL2mU9jx6_-r_2Zy0wQaC9Fz2uAxPyUKbRt3Wz0B7QrOgxNRzINXIsQEGTKaI3pa7GLQ4N34hBrQAnrfUJ_mfQ";
+#else
+                var timer = config.GetValue<string>("RandomTimer");
+                var dum = ApiKeyLoader.LoadDecryptedApiKey(timer);
+#endif
                 client.BaseAddress = new Uri(url!);
-                client.DefaultRequestHeaders.Add("x-api-key", key);
-            });
+                client.DefaultRequestHeaders.Add("dummy", dum);
+            }).ConfigurePrimaryHttpMessageHandler(_ => SocketHandlerBuilder.Build());
         });
 
         var host = builder.Build();

@@ -59,6 +59,50 @@
             Application.Shutdown();
         }
 
+
+        public void AskUserNameAndSaveScore()
+        {
+            var dialog = new Dialog
+            {
+                Title = "Enter Name",
+                Width = 40,
+                Height = 8
+            };
+            var label = new Label
+            {
+                Text = gameView.Won ? "Victory! Enter your name:" : "Game Over! Enter your name:",
+                X = 2,
+                Y = 1,
+                Width = 30
+            };
+            var nameField = new TextField
+            {
+                X = 2,
+                Y = 2,
+                Width = 30,
+                Text = ""
+            };
+            var okButton = new Button
+            {
+                Text = "OK",
+                X = Pos.Center(),
+                Y = 4,
+                IsDefault = true
+            };
+            dialog.Add(label, nameField, okButton);
+            okButton.Accepting += (_, _) =>
+            {
+                var userName = nameField.Text?.ToString()?.Trim() ?? "Player";
+                boardApi.UpdateScore(userName, gameView.Score);
+                dialog.RequestStop();
+                // Ici, tu pourras ensuite naviguer vers le menu, nettoyer la vue, etc.
+                // Mais pas AVANT la fermeture du dialog !
+            };
+
+
+            Application.Run(dialog);
+        }
+
         // =========== MENU ============
         private void ShowMenu()
         {
@@ -172,7 +216,7 @@
                     // Return to menu
                     running = false;
                     win.KeyDown -= GameKeyHandler;
-                    gameView.AskUserNameAndSaveScore();
+                    AskUserNameAndSaveScore();
                     ShowMenu();
                 }
             }
@@ -199,7 +243,13 @@
                 while (running)
                 {
                     var now = Stopwatch.GetTimestamp();
-                    if (!gameView.PauseDrawing && Stopwatch.GetElapsedTime(lastMove, now) >= moveInterval && !gameView.Lost && !gameView.Won)
+                    if (gameView.Lost || gameView.Won)
+                    {
+                        win.KeyDown -= GameKeyHandler;
+                        Application.Invoke(AskUserNameAndSaveScore);
+                        ShowMenu();
+                    }
+                    if (Stopwatch.GetElapsedTime(lastMove, now) >= moveInterval && !gameView.Lost && !gameView.Won)
                     {
                         lock (locker)
                         {
@@ -207,7 +257,7 @@
                         }
                         lastMove = now;
                     }
-                    if (!gameView.PauseDrawing && Stopwatch.GetElapsedTime(lastDraw, now) >= drawInterval)
+                    if (Stopwatch.GetElapsedTime(lastDraw, now) >= drawInterval)
                     {
                         Application.Invoke(() =>
                         {

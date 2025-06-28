@@ -6,9 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	  <PublishAot>true</PublishAot>
+	  <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
 
   <ItemGroup>
+	  <TrimmerRootAssembly Include="Terminal.Gui" />
     <None Remove="Settings.json" />
   </ItemGroup>
 

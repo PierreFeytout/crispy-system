@@ -16,7 +16,6 @@ internal class GameView : View
     public List<(int x, int y)> Shots { get; } = new();
     public bool Won { get; set; }
     public bool Lost { get; set; }
-    public bool PauseDrawing { get; set; } = false;
     private readonly Attribute shotColor = new Attribute(Color.BrightRed, Color.Black);
     private readonly Attribute enemyColor = new Attribute(Color.BrightGreen, Color.Black);
 
@@ -82,7 +81,6 @@ internal class GameView : View
 
     public void Init()
     {
-        PauseDrawing = false;
         Won = false;
         Lost = false;
         PlayerX = GameWidth / 2;
@@ -117,9 +115,6 @@ internal class GameView : View
                 if (y >= PlayerY)
                 {
                     Lost = true;
-                    PauseDrawing = true;
-                    // Stoppe ton thread de logique AVANT si ce n’est pas déjà fait !
-                    Application.Invoke(AskUserNameAndSaveScore);
                     return;
                 }
             }
@@ -156,9 +151,6 @@ internal class GameView : View
         if (Enemies.Count == 0)
         {
             Won = true;
-            PauseDrawing = true;
-            // Stoppe la logique ici
-            Application.Invoke(AskUserNameAndSaveScore);
         }
     }
 
@@ -214,49 +206,5 @@ internal class GameView : View
     private TimeSpan ElapsedSince(long ticks)
     {
         return Stopwatch.GetElapsedTime(ticks, Stopwatch.GetTimestamp());
-    }
-
-    public void AskUserNameAndSaveScore()
-    {
-        PauseDrawing = true;
-        var dialog = new Dialog
-        {
-            Title = "Enter Name",
-            Width = 40,
-            Height = 8
-        };
-        var label = new Label
-        {
-            Text = Won ? "Victory! Enter your name:" : "Game Over! Enter your name:",
-            X = 2,
-            Y = 1,
-            Width = 30
-        };
-        var nameField = new TextField
-        {
-            X = 2,
-            Y = 2,
-            Width = 30,
-            Text = ""
-        };
-        var okButton = new Button
-        {
-            Text = "OK",
-            X = Pos.Center(),
-            Y = 4,
-            IsDefault = true
-        };
-        dialog.Add(label, nameField, okButton);
-        okButton.Accepting += (_, _) =>
-        {
-            var userName = nameField.Text?.ToString()?.Trim() ?? "Player";
-            _boardApi.UpdateScore(userName, Score);
-            dialog.RequestStop();
-            // Ici, tu pourras ensuite naviguer vers le menu, nettoyer la vue, etc.
-            // Mais pas AVANT la fermeture du dialog !
-        };
-
-
-        Application.Run(dialog);
     }
 }
